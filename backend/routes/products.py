@@ -26,7 +26,7 @@ def admin_create_product(product : ProductCreate, session : Session = Depends(ge
     return db_product
 
 @products_router.put('/{id}', response_model = ProductRead)
-def admin_update_product(id : int, name : str | None, description : str | None, price : Decimal | None, session : Session = Depends(get_session), user : User = Depends(get_current_user)):
+def admin_update_product(id : int, name : str | None = None, description : str | None = None, price : Decimal | None = None, session : Session = Depends(get_session), user : User = Depends(get_current_user)):
     if not user.isadmin:
         raise HTTPException(400, 'No Permission')
     product = session.get(Product, id)

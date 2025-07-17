@@ -8,7 +8,7 @@ from utils.auth_utils import get_password_hash
 
 def seed():
     with Session(engine) as session:
-        user1 = User(username = 'a', email = 'a@gmail.com', password = get_password_hash('1234'))
+        user1 = User(username = 'a', email = 'a@gmail.com', password = get_password_hash('1234'), isadmin = True)
         user2 = User(username = 'b', email = 'b@gmail.com', password = get_password_hash('9876'))
         product1 = Product(name = 'Mango', description = 'A Mango', price = 20) # type: ignore
         product2 = Product(name = 'Banana', description = 'A Banana', price = 15)# type: ignore

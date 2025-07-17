@@ -35,7 +35,7 @@ def login(user : UserCreate, session : Session = Depends(get_session)):
     }
 
 @auth_router.put('/', response_model = dict)
-def update(username : str | None, email : str | None, password : str | None, user : User = Depends(get_current_user), session : Session = Depends(get_session)):
+def update(username : str | None = None, email : str | None = None, password : str | None = None, user : User = Depends(get_current_user), session : Session = Depends(get_session)):
     if not user:
         raise HTTPException(400, 'Invalid credentials')
     if username:
