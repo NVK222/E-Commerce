@@ -1,3 +1,4 @@
+from decimal import Decimal
 from sqlmodel import Session
 from db.database import create_db,engine
 from models.cart import CartItem
@@ -15,10 +16,10 @@ def seed():
         product3 = Product(name = 'Pencil', description = 'A Pencil', price = 1)# type: ignore
         session.add_all([user1, user2, product1, product2, product3])
         session.commit()
-        cart1 = CartItem(user_id = 1, product_id = 1, quantity = 10, unit_price = 20)
-        cart2 = CartItem(user_id = 1, product_id = 2, quantity = 20, unit_price = 15)
-        cart3 = CartItem(user_id = 2, product_id = 2, quantity = 50, unit_price = 15)
-        cart4 = CartItem(user_id = 2, product_id = 3, quantity = 30, unit_price = 1)
+        cart1 = CartItem(user_id = 1, product_id = 1, quantity = 10, unit_price = Decimal(20))
+        cart2 = CartItem(user_id = 1, product_id = 2, quantity = 20, unit_price = Decimal(15))
+        cart3 = CartItem(user_id = 2, product_id = 2, quantity = 50, unit_price = Decimal(15))
+        cart4 = CartItem(user_id = 2, product_id = 3, quantity = 30, unit_price = Decimal(1))
         session.add_all([cart1, cart2, cart3, cart4])
         session.commit()
         print('Seeding complete')
