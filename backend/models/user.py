@@ -17,3 +17,6 @@ class UserRead(BaseModel):
     id: int
     username: str
     email: str
+
+class UserReadAdmin(UserRead):
+    isadmin: bool

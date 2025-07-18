@@ -26,7 +26,6 @@ def post_order(session : Session = Depends(get_session), user : User = Depends(g
     total_price = Decimal(0)
     for item in cart:
         total_price += item.unit_price * item.quantity
-        print(total_price)
     order = Order(user_id = user.id, total_price = total_price) #type: ignore
     session.add(order)
     session.commit()
@@ -40,7 +39,6 @@ def post_order(session : Session = Depends(get_session), user : User = Depends(g
         session.delete(item)
     
     session.commit()
-    print(order.model_dump())
     return order
 
 @orders_router.get('/{id}', response_model = dict)
@@ -58,6 +56,6 @@ def admin_get_orders(id : int, session : Session = Depends(get_session), user : 
         raise HTTPException(400, 'No permission')
     user_ = session.get(User, id)
     if not user_:
-        raise HTTPException(404, '')
+        raise HTTPException(404, 'No such user found')
     orders = session.exec(select(Order).where(Order.user_id == user_.id)).all()
     return [OrderRead.model_validate(order.model_dump) for order in orders]

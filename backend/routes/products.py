@@ -1,8 +1,10 @@
 from decimal import Decimal
-from typing import List
-from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session, select
+from typing import Annotated, List
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import func
+from sqlmodel import Session, asc, desc, select
 from db.database import get_session
+from models.filter import FilterParamsProduct
 from models.products import Product, ProductCreate, ProductRead
 from models.user import User
 from utils.auth_utils import get_current_user
@@ -11,12 +13,35 @@ from utils.auth_utils import get_current_user
 products_router = APIRouter()
 
 @products_router.get('/', response_model = List[ProductRead])
-def get_products(session : Session = Depends(get_session)):
-    products = session.exec(select(Product)).all()
-    return products
+def get_products(filter_params : FilterParamsProduct = Depends(),
+                 session : Session = Depends(get_session)
+                 ):
+    query = select(Product)
+    if filter_params.name:
+        query = query.where(func.lower(Product.name).like(f'%{filter_params.name}%'))
+    if filter_params.min_price is not None:
+        query = query.where(Product.price >= filter_params.min_price)
+    if filter_params.max_price is not None:
+        query = query.where(Product.price <= filter_params.max_price)
+    
+    to_sort = getattr(Product, filter_params.sort_by)
+    order_values = {
+        'asc' : asc,
+        'desc' : desc
+    }
+    to_order = order_values.get(filter_params.order, asc)
+    query = query.order_by(to_order(to_sort))
+
+    query = query.offset(filter_params.offset).limit(filter_params.limit)
+
+    return session.exec(query).all()
+
 
 @products_router.post('/', response_model = ProductRead)
-def admin_create_product(product : ProductCreate, session : Session = Depends(get_session), user : User = Depends(get_current_user)):
+def admin_create_product(product : ProductCreate,
+                         session : Session = Depends(get_session),
+                         user : User = Depends(get_current_user)
+                         ):
     if not user.isadmin:
         raise HTTPException(400, 'No permission')
     db_product = Product(**product.model_dump())
