@@ -1,6 +1,7 @@
 from datetime import datetime,timezone
 from decimal import Decimal
-from typing import List
+from enum import Enum
+from typing import Literal
 from pydantic import BaseModel
 from sqlalchemy import Column, ForeignKey, Integer, Numeric
 from sqlmodel import Field, SQLModel
@@ -11,6 +12,8 @@ class Order(SQLModel, table = True):
     user_id : int = Field(foreign_key = 'user.id')
     created_at : datetime = Field(default = datetime.now(timezone.utc))
     total_price : Decimal = Field(sa_column = Column(Numeric(10,2)))
+    paypal_order_id : str | None = Field(default = None, index = True)
+    status : str = Field(default = 'pending')
 
 class OrderItem(SQLModel, table = True):
     id : int | None = Field(default = None, primary_key = True)
@@ -36,3 +39,5 @@ class OrderRead(BaseModel):
     user_id : int
     created_at : datetime
     total_price : Decimal
+    paypal_order_id : str | None
+    status : str
