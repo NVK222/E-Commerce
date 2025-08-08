@@ -78,8 +78,6 @@ async def create_paypal_order(session : Session = Depends(get_session), user : U
         'Content-Type' : 'application/json',
         'Authorization' : f'Bearer {ACCESS_TOKEN}'
     }
-
-    print(paypal_order_payload,headers,sep='\n')
     
     async with httpx.AsyncClient() as client:
         try:
