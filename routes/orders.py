@@ -21,7 +21,7 @@ ACCESS_TOKEN = getenv('PAYPAL_ACCESS_TOKEN')
 @orders_router.get('/', response_model = List[OrderRead])
 def get_orders(session : Session = Depends(get_session), user : User = Depends(get_current_user)):
     orders = session.exec(select(Order).where(Order.user_id == user.id)).all()
-    return [OrderRead.model_validate(order.model_dump) for order in orders]
+    return [OrderRead.model_validate(order.model_dump()) for order in orders]
 
 @orders_router.post('/create-order', response_model = dict)
 async def create_paypal_order(session : Session = Depends(get_session), user : User = Depends(get_current_user)):
@@ -78,6 +78,8 @@ async def create_paypal_order(session : Session = Depends(get_session), user : U
         'Content-Type' : 'application/json',
         'Authorization' : f'Bearer {ACCESS_TOKEN}'
     }
+
+    print(paypal_order_payload,headers,sep='\n')
     
     async with httpx.AsyncClient() as client:
         try:
@@ -104,10 +106,8 @@ async def create_paypal_order(session : Session = Depends(get_session), user : U
             else:
                 raise HTTPException(500, 'Failed to get paypal approve url')
         except httpx.HTTPStatusError as e:
-            session.rollback()
             raise HTTPException(e.response.status_code, f'Paypal API Error :  {e.response.text}')
         except Exception as e:
-            session.rollback()
             raise HTTPException(500, f'An Error Occured {str(e)}')
 
 @orders_router.get('/capture-order')
